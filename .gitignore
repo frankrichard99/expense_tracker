@@ -1,0 +1,76 @@
+## #######################################################################
+## .NET Core / .NET 5+ / C# Build Artifacts
+## #######################################################################
+[Bb]in/
+[Oo]bj/
+[Ex]ternal/
+
+# MSBuild temporary files and outputs
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## #######################################################################
+## IDE & Development Tools
+## #######################################################################
+
+# Visual Studio files
+.vs/
+*.User.csproj
+*.csproj.user
+*.suo
+*.clw
+*.ncb
+*.aps
+*.psess
+*.vsp
+*.vspx
+*.sap
+*.opendb
+*.VC.db
+
+# Visual Studio Code / Cursor IDE
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+
+# Rider / JetBrains IDEs
+.idea/
+*.sln.iml
+
+## #######################################################################
+## Package Management & Tooling
+## #######################################################################
+
+# NuGet Packages
+*.nupkg
+# The packages folder can be rebuilt via 'dotnet restore'
+**/packages/
+# Local EF Core or .NET tool manifests
+.dotnet/
+
+## #######################################################################
+## Operating System Files
+## #######################################################################
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+## #######################################################################
+## Environment Secrets & Local Databases (CRITICAL)
+## #######################################################################
+# Local appsettings overrides containing database credentials
+appsettings.Development.json
+appsettings.Local.json
+
+# Local SQLite databases or SQL Express artifacts
+*.db
+*.db-shm
+*.db-wal
+*.mdf
+*.ldf
