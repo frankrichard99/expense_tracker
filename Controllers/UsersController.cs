@@ -1,29 +1,35 @@
 ﻿using ExpenseTracker.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using ExpenseTracker.Services;
+using ExpenseTracker.DTOs;
 
 
 namespace ExpenseTracker.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UsersController : ControllerBase
+    public class UsersController(UserService _usersService) : ControllerBase
     {
-        static private List<User> users = new List<User> { new User { Id = "1", FirstName = "frank", LastName = "richard", Age = 19 }, new User { Id = "2", FirstName = "chibuike", LastName = "john", Age = 23 }, new User { Id = "3", FirstName = "benny", LastName = "kiur", Age = 13 } };
-
-
         [HttpGet]   
         public ActionResult<List<User>> GetAllUsers()
         {
-            return Ok(users);
+            return Ok(_usersService.GetUsers());
         }
-        public ActionResult<User> CreateUser(User user)
+        [HttpPost]
+        public ActionResult<User> CreateUser(CreateUserDto user)
         {
-            if(user == null)
+           
+            var newUser = new User
             {
-                return BadRequest();
-            }
-            return CreatedAtAction(nameof(GetAllUsers), user.Id, user);
+                Id = ExpenseTracker.Models.User.NextId(),
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Age = user.Age,
+            };
+            _usersService.AddUser(newUser);
+            return CreatedAtAction(nameof(GetAllUsers), new { id = newUser.Id }, user);
         }
 
     }
