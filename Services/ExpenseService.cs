@@ -1,53 +1,97 @@
-﻿using ExpenseTracker.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
+﻿using ExpenseTracker.Data;
+using ExpenseTracker.DTOs;
+using ExpenseTracker.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ExpenseTracker.Services
 {
     public class ExpenseService
     {
-        static private List<Expense> expenses = new List<Expense>
+        private readonly AppDbContext _context;
+        public ExpenseService(AppDbContext context)
         {
-            new Expense
-            {
-                Id = 101,
-                Amount = 15.50,
-                Description = "Lunch at McDonald's",
-                Category = ExpenseCategory.FoodCategory,
-                Date = DateTime.Now.AddDays(-1)
-            },
-            new Expense
-            {
-                Id = 102,
-                Amount = 30.00,
-                Description = "Train ticket",
-                Category = ExpenseCategory.TrasportCategory,
-                Date = DateTime.Now
-            },
-
-            new Expense
-            {
-                Id = 103,
-                Amount = 85.00,
-                Description = "Groceries for the week",
-                Category = ExpenseCategory.FoodCategory,
-                Date = DateTime.Now.AddDays(-3)
-            },
-            new Expense
-            {
-                Id = 104,
-                Amount = 350.00,
-                Description = "Data Science Boot Camp Deposit",
-                Category = ExpenseCategory.EducationCategory,
-                Date = DateTime.Now.AddDays(-5)
-            }
-        };
-        public List<Expense> GetAllExpenses()
-        {
-            return expenses;
+            _context = context;
         }
-        public Expense GetExpenseById(int id) { 
-            var expense =  expenses.FirstOrDefault(e => e.Id == id);
-            return expense;
+
+        public async Task<List<Expense>> GetAllExpenses()
+        {
+            return await _context.Expenses
+                .AsNoTracking()
+                .Include(e => e.User)
+                .Include(e => e.Category)
+                .ToListAsync();
+        }
+
+        public async Task<Expense?> GetExpenseById(int id)
+        {
+            return await _context.Expenses
+                .AsNoTracking()
+                .Include(e => e.User)
+                .Include(e => e.Category)
+                .FirstOrDefaultAsync(e => e.Id == id);
+        }
+
+        public async Task<Expense?> AddExpense(decimal amount, string description, int userId, string categoryName)
+        {
+            ExpenseCategory? category = await _context.ExpenseCategories.FirstOrDefaultAsync(c => c.Name.ToLower() == categoryName.ToLower());
+            User? user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (category == null || user == null)
+            {
+                return null;
+            }
+
+            var newExpense = new Expense
+            {
+                Amount = amount,
+                Description = description,
+                UserId = userId,
+                CategoryId = category.Id,
+            };
+
+            await _context.Expenses.AddAsync(newExpense);
+            await _context.SaveChangesAsync();
+            return newExpense;
+        }
+
+        public async Task<Expense?> UpdateExpense(int id, decimal? amount, string? description, string? categoryName)
+        {
+            var existingExpense = await _context.Expenses.FirstOrDefaultAsync(e => e.Id == id);
+            if (existingExpense == null) return null;
+
+           
+
+          if(amount.HasValue)
+            {
+                existingExpense.Amount = amount.Value;
+            };
+            if (description != null)
+            {
+                existingExpense.Description = description;
+            }
+            if(categoryName != null)
+            {
+                ExpenseCategory? category = await _context.ExpenseCategories.FirstOrDefaultAsync(c => c.Name.ToLower() == categoryName.ToLower());
+                if (category == null) return null;
+                existingExpense.CategoryId = category.Id;
+            }
+            
+
+            await _context.SaveChangesAsync();
+
+           
+            return await GetExpenseById(id);
+        }
+
+      
+        public async Task<bool> DeleteExpense(int id)
+        {
+            var expense = await _context.Expenses.FirstOrDefaultAsync(e => e.Id == id);
+            if (expense == null) return false;
+
+            _context.Expenses.Remove(expense);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }
