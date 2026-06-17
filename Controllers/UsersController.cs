@@ -69,7 +69,7 @@ namespace ExpenseTracker.Controllers
             };
             return Ok(user);
         }
-
+        /*
         [HttpPost]
         public async Task<ActionResult<UserResponseDto>> CreateUser(CreateUserDto userDto)
         {
@@ -98,7 +98,7 @@ namespace ExpenseTracker.Controllers
             };
             return CreatedAtAction(nameof(GetUserById), new { id = response.Id }, response);
         }
-
+        */
         [HttpPut("{id}")]
         public async Task<ActionResult<UserResponseDto>> UpdateUser(int id, UpdateUserDto user)
         {
