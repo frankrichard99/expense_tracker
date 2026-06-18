@@ -27,7 +27,7 @@ namespace ExpenseTracker.Services
                 .ThenInclude(e => e.Category)
                 .FirstOrDefaultAsync(u => u.Id == id);
         }
-
+        /*
         public async Task<User> AddUser(string firstName, string lastName, string email, int age)
         {
             var newUser = new User
@@ -43,7 +43,7 @@ namespace ExpenseTracker.Services
             return newUser;
         }
 
-      
+      */
         public async Task<User?> UpdateUser(int? id, string? firstName, string? lastName, string? email, int? age)
         {
             var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);

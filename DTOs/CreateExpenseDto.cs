@@ -6,7 +6,6 @@ namespace ExpenseTracker.DTOs
       
         public required decimal Amount { set; get; }
         public required string Description { set; get; }
-        public required int UserId { set; get; }
         public required string CategoryName { set; get; }
     }
 }

@@ -3,6 +3,12 @@ using ExpenseTracker.Services;
 using Microsoft.EntityFrameworkCore;
 using Scalar;
 using Scalar.AspNetCore;
+
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -12,6 +18,7 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi(); 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ExpenseService>();
+builder.Services.AddScoped<TokenService>();
 
 builder.Services.AddDbContext<AppDbContext>(
     options => options.UseSqlServer(
@@ -28,6 +35,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

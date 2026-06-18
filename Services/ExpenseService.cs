@@ -31,6 +31,14 @@ namespace ExpenseTracker.Services
                 .FirstOrDefaultAsync(e => e.Id == id);
         }
 
+        public async Task<List<Expense>> GetExpensesByUserId(int userId)
+        {
+            return await _context.Expenses
+                .Where(e => e.UserId == userId)
+                .Include(e => e.Category)
+                .ToListAsync();
+        }
+
         public async Task<Expense?> AddExpense(decimal amount, string description, int userId, string categoryName)
         {
             ExpenseCategory? category = await _context.ExpenseCategories.FirstOrDefaultAsync(c => c.Name.ToLower() == categoryName.ToLower());

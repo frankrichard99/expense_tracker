@@ -39,23 +39,12 @@ namespace ExpenseTracker.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<UserResponseDto>> Login(LoginDto loginDto)
         {
-            var user = await _authService.Login(loginDto);
+            var token = await _authService.Login(loginDto);
 
-            if (user == null)
-            {
-                return Unauthorized("Invalid email or password.");
-            }
-            
-            var response = new UserResponseDto
-            {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email,
-                Age = user.Age
-            };
+            if (token == null)
+                return Unauthorized("Invalid credentials");
 
-            return Ok(response);
+            return Ok(new { token });
         }
     }
 }

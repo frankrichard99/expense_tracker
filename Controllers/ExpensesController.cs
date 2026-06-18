@@ -1,14 +1,18 @@
 ﻿using ExpenseTracker.DTOs;
 using ExpenseTracker.Models;
 using ExpenseTracker.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace ExpenseTracker.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class ExpensesController(ExpenseService _expenseService) : ControllerBase
     {
+        
         [HttpGet]
         public async Task<ActionResult<List<ExpenseResponseDto>>> GetAllExpenses()
         {
@@ -73,7 +77,9 @@ namespace ExpenseTracker.Controllers
         [HttpPost]
         public async Task<ActionResult<ExpenseResponseDto>> CreateExpense(CreateExpenseDto expenseDto)
         {
-            var newExpense = await _expenseService.AddExpense(expenseDto.Amount, expenseDto.Description, expenseDto.UserId, expenseDto.CategoryName.ToLower());
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int userId = int.Parse(userIdClaim!);
+            var newExpense = await _expenseService.AddExpense(expenseDto.Amount, expenseDto.Description, userId, expenseDto.CategoryName.ToLower());
             if (newExpense == null)
             {
                 return BadRequest("Invalid User or Category");
@@ -100,6 +106,20 @@ namespace ExpenseTracker.Controllers
             };
 
             return CreatedAtAction(nameof(GetExpenseById), new { id = response.Id }, response);
+        }
+
+        [HttpGet("my")]
+        public async Task<IActionResult> GetMyExpenses()
+        {
+            var userIdClaim =
+                User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            int userId = int.Parse(userIdClaim!);
+
+            var expenses =
+                await _expenseService.GetExpensesByUserId(userId);
+
+            return Ok(expenses);
         }
 
         [HttpPut("{id}")]
