@@ -1,13 +1,13 @@
+using System.Text;
 using ExpenseTracker.Data;
+using ExpenseTracker.Middleware;
 using ExpenseTracker.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using Scalar;
 using Scalar.AspNetCore;
-
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using ExpenseTracker.Middleware;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,7 +16,23 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi(); 
+
+builder.Services.AddOpenApi(options =>
+{
+    options.AddSchemaTransformer((schema, context, cancellationToken) =>
+    {
+        // 1. Target your custom IFormFile properties
+        if (context.JsonTypeInfo.Type == typeof(IFormFile))
+        {
+            // 2. In .NET 10, the property name is 'Type' and it uses the JsonSchemaType flags
+            schema.Type = JsonSchemaType.String;
+
+            // 3. Clear format mappings
+            schema.Format = "binary";
+        }
+        return Task.CompletedTask;
+    });
+});
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ExpenseService>();
 builder.Services.AddScoped<TokenService>();
