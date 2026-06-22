@@ -16,7 +16,7 @@ namespace ExpenseTracker.Models
         public int Id { set; get; }
 
         [Column(TypeName = "decimal(18,2)")]
-        public required decimal Amount{ set; get; }
+        public decimal Amount { get; set; }
         public required string Description { set; get; }
         public DateTime Date { set; get; } = DateTime.UtcNow;
         public required int UserId { set; get; }

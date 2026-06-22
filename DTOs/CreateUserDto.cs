@@ -1,14 +1,27 @@
-﻿namespace ExpenseTracker.DTOs
+﻿
+using System.ComponentModel.DataAnnotations;
+
+namespace ExpenseTracker.DTOs
 {
     public class CreateUserDto
     {
        
         
-           
-            public required string FirstName { set; get; }
-            public required string LastName { set; get; }
-            public required string Email { set; get; }
-            public required int Age { set; get; }
+            [MaxLength(50)]
+            [Required]
+            public string FirstName { set; get; }
+
+            [MaxLength(50)]
+        [Required]
+        public string LastName { set; get; }
+
+            [EmailAddress]
+        [Required]
+        public string Email { set; get; }
+
+            [Range(12, 100)]
+        [Required]
+        public int Age { set; get; }
 
         
     }

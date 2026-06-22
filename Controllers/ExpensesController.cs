@@ -109,15 +109,12 @@ namespace ExpenseTracker.Controllers
         }
 
         [HttpGet("my")]
-        public async Task<IActionResult> GetMyExpenses()
+        public async Task<ActionResult> GetMyExpenses()
         {
-            var userIdClaim =
-                User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             int userId = int.Parse(userIdClaim!);
 
-            var expenses =
-                await _expenseService.GetExpensesByUserId(userId);
+            var expenses = await _expenseService.GetExpensesByUserId(userId);
 
             return Ok(expenses);
         }

@@ -7,6 +7,7 @@ using Scalar.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using ExpenseTracker.Middleware;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,10 +20,35 @@ builder.Services.AddOpenApi();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ExpenseService>();
 builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<AuthService>();
 
 builder.Services.AddDbContext<AppDbContext>(
     options => options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    var key = builder.Configuration["JwtSettings:Key"];
+
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+
+        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+        ValidAudience = builder.Configuration["JwtSettings:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(key!)
+        )
+    };
+});
 
 var app = builder.Build();
 
@@ -34,6 +60,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseMiddleware<LoggerMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();

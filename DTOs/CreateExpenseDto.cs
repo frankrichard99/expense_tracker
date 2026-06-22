@@ -1,11 +1,17 @@
-﻿
+﻿using System.ComponentModel.DataAnnotations;
+
 namespace ExpenseTracker.DTOs
 {
     public class CreateExpenseDto
     {
-      
-        public required decimal Amount { set; get; }
-        public required string Description { set; get; }
-        public required string CategoryName { set; get; }
+        [Required]
+        public decimal Amount { set; get; }
+
+        [Required]
+        [MaxLength(200)]
+        public string Description { set; get; }
+
+        [Required]
+        public string CategoryName { set; get; }
     }
 }

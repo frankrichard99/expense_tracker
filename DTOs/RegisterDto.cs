@@ -1,15 +1,25 @@
-﻿using ExpenseTracker.Models;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace ExpenseTracker.DTOs
 {
     public class RegisterDto
     {
+        [Required]
+        [MaxLength(50)]
+        public string FirstName { set; get; }
+        [Required]
+        [MaxLength(50)]
+        public string LastName { set; get; }
+        [Required]
+        [EmailAddress]
+        public string Email { set; get; }
         
-        public required string FirstName { set; get; }
-        public required string LastName { set; get; }
-        public required string Email { set; get; }
-        public required string Password { set; get; }
-        public required int Age { set; get; }
+        [Required]
+        [MinLength(5)]
+        public string Password { set; get; }
+        [Required]
+        [Range(12, 100)]
+        public int Age { set; get; }
         
     }
 }

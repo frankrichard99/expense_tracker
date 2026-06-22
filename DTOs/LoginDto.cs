@@ -1,8 +1,15 @@
-﻿namespace ExpenseTracker.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ExpenseTracker.DTOs
 {
     public class LoginDto
     {
-        public required string Email { set; get; }
-        public required string Password { set; get; }
+        [Required]
+        [EmailAddress]
+        public string Email { set; get; }
+
+        [Required]
+        [MinLength(5)]
+        public string Password { set; get; }
     }
 }

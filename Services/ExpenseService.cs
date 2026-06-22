@@ -66,10 +66,9 @@ namespace ExpenseTracker.Services
         {
             var existingExpense = await _context.Expenses.FirstOrDefaultAsync(e => e.Id == id);
             if (existingExpense == null) return null;
+                     
 
-           
-
-          if(amount.HasValue)
+            if(amount.HasValue)
             {
                 existingExpense.Amount = amount.Value;
             };
@@ -83,11 +82,7 @@ namespace ExpenseTracker.Services
                 if (category == null) return null;
                 existingExpense.CategoryId = category.Id;
             }
-            
-
             await _context.SaveChangesAsync();
-
-           
             return await GetExpenseById(id);
         }
 
