@@ -26,6 +26,7 @@ namespace ExpenseTracker.Controllers
                 Description = e.Description,
                 Date = e.Date,
                 UserId = e.UserId,
+                ReceiptUrl = e.ReceiptUrl,
                 User = new UserPreviewDto
                 {
                     FirstName = e.User.FirstName,
@@ -57,6 +58,7 @@ namespace ExpenseTracker.Controllers
                 Amount = expense.Amount,
                 Description = expense.Description,
                 Date = expense.Date,
+                ReceiptUrl = expense.ReceiptUrl,
                 UserId = expense.UserId,
                 CategoryId = expense.CategoryId,
                 User = new UserPreviewDto
@@ -75,11 +77,12 @@ namespace ExpenseTracker.Controllers
         }
 
         [HttpPost]
+        [Consumes("multipart/form-data")]
         public async Task<ActionResult<ExpenseResponseDto>> CreateExpense(CreateExpenseDto expenseDto)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             int userId = int.Parse(userIdClaim!);
-            var newExpense = await _expenseService.AddExpense(expenseDto.Amount, expenseDto.Description, userId, expenseDto.CategoryName.ToLower());
+            var newExpense = await _expenseService.AddExpense(expenseDto.Amount, expenseDto.Description, userId, expenseDto.CategoryName.ToLower(), expenseDto.ReceiptImage);
             if (newExpense == null)
             {
                 return BadRequest("Invalid User or Category");
@@ -91,6 +94,7 @@ namespace ExpenseTracker.Controllers
                 Amount = newExpense.Amount,
                 Description = newExpense.Description,
                 Date = newExpense.Date,
+                ReceiptUrl = newExpense.ReceiptUrl,
                 UserId = newExpense.UserId,
                 CategoryId = newExpense.CategoryId,
                 User = new UserPreviewDto
@@ -116,14 +120,37 @@ namespace ExpenseTracker.Controllers
 
             var expenses = await _expenseService.GetExpensesByUserId(userId);
 
-            return Ok(expenses);
+            List<ExpenseResponseDto> response = expenses
+               .Select(e => new ExpenseResponseDto
+               {
+                   Id = e.Id,
+                   Amount = e.Amount,
+                   Description = e.Description,
+                   Date = e.Date,
+                   UserId = e.UserId,
+                   ReceiptUrl = e.ReceiptUrl,
+                   User = new UserPreviewDto
+                   {
+                       FirstName = e.User.FirstName,
+                       LastName = e.User.LastName,
+                   },
+                   CategoryId = e.CategoryId,
+                   Category = new CategoryPreviewDto
+                   {
+                       Id = e.Category.Id,
+                       Name = e.Category.Name
+                   }
+               }).ToList();
+
+            return Ok(response);
         }
 
         [HttpPut("{id}")]
+        [Consumes("multipart/form-data")]
         public async Task<ActionResult<ExpenseResponseDto>> UpdateExpense(int id, UpdateExpenseDto updateDto)
         {
 
-            var updatedExpense = await _expenseService.UpdateExpense(id, updateDto.Amount, updateDto.Description, updateDto.CategoryName.ToLower());
+            var updatedExpense = await _expenseService.UpdateExpense(id, updateDto.Amount, updateDto.Description, updateDto.CategoryName.ToLower(), updateDto.ReceiptImage);
 
             if (updatedExpense == null)
             {
@@ -136,6 +163,7 @@ namespace ExpenseTracker.Controllers
                 Amount = updatedExpense.Amount,
                 Description = updatedExpense.Description,
                 Date = updatedExpense.Date,
+                ReceiptUrl = updatedExpense.ReceiptUrl,
                 UserId = updatedExpense.UserId,
                 CategoryId = updatedExpense.CategoryId,
                 User = new UserPreviewDto

@@ -7,6 +7,7 @@
         public string Description { set; get; }
         public DateTime Date { set; get; }
 
+        public string ReceiptUrl { set; get; } = string.Empty;
         public int UserId { set; get; }
         public UserPreviewDto User { set; get; }
 

@@ -20,6 +20,8 @@ namespace ExpenseTracker.Models
         public required string Description { set; get; }
         public DateTime Date { set; get; } = DateTime.UtcNow;
         public required int UserId { set; get; }
+
+        public string? ReceiptUrl { set; get; }
         public User User { set; get; }
 
         public required int CategoryId { set; get; }

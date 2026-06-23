@@ -12,5 +12,7 @@ namespace ExpenseTracker.DTOs
         [MaxLength(200)]
         public string? Description { get; set; }
         public string? CategoryName { get; set; }
+
+        public IFormFile? ReceiptImage { get; set; }
     }
 }

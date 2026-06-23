@@ -8,7 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Scalar;
 using Scalar.AspNetCore;
-
+using ExpenseTracker.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,10 +37,17 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ExpenseService>();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<DocumentService>();
+builder.Services.AddScoped<CloudinaryService>();
+
 
 builder.Services.AddDbContext<AppDbContext>(
     options => options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.Configure<CloudinarySettings>(
+    builder.Configuration.GetSection("CloudinarySettings"));
+
 
 builder.Services.AddAuthentication(options =>
 {

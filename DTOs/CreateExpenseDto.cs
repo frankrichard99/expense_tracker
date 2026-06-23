@@ -13,5 +13,7 @@ namespace ExpenseTracker.DTOs
 
         [Required]
         public string CategoryName { set; get; }
+
+        public IFormFile? ReceiptImage { get; set; }
     }
 }

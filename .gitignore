@@ -67,6 +67,8 @@ Desktop.ini
 # Local appsettings overrides containing database credentials
 appsettings.Development.json
 appsettings.Local.json
+appsettings.json
+
 
 # Local SQLite databases or SQL Express artifacts
 *.db

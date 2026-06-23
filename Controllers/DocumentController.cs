@@ -1,62 +1,31 @@
 ﻿using ExpenseTracker.DTOs;
+using ExpenseTracker.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ExpenseTracker.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class DocumentController : ControllerBase
+    public class DocumentController(CloudinaryService _cloudinaryService) : ControllerBase
     {
 
         [HttpPost("upload")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> Upload([FromForm] UploadDocumentDto dto)
         {
-            var uploadsFolder =
-                    Path.Combine(
-                    Directory.GetCurrentDirectory(),
-                    "Uploads");
-
-            if (!Directory.Exists(uploadsFolder))
-            {
-                Directory.CreateDirectory(uploadsFolder);
-            }
-
-            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".pdf" };
-
-            var extension = Path.GetExtension(dto.File.FileName).ToLower();
-            if (!allowedExtensions.Contains(extension))
-            {
-                return BadRequest("Invalid file type");
-            }
-
-            if (dto.File.Length > 5_000_000)
-            {
-                return BadRequest(
-                    "Maximum size is 5MB");
-            }
-
-            var uniqueFileName = $"{Guid.NewGuid()}_{dto.File.FileName}";
-
-            var filePath =
-                Path.Combine(
-                    uploadsFolder,
-                    uniqueFileName);
-
            
-            using var stream =
-                new FileStream(
-                    filePath,
-                    FileMode.Create);
+            string newFile = await _cloudinaryService.UploadFile(dto.File);
 
-
-            await dto.File.CopyToAsync(stream);
+            if(newFile == null)
+            {
+                return BadRequest("Please check the file extension & size");
+            }
 
             return Ok(new
             {
-                FileName = uniqueFileName,
+                FileUrl = newFile,
                 OriginalName = dto.File.FileName,
-                Size = dto.File.Length
+                //Size = dto.File.Length
             });
         }
     }
