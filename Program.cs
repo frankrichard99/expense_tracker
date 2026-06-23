@@ -1,16 +1,19 @@
 using System.Text;
 using ExpenseTracker.Data;
 using ExpenseTracker.Middleware;
+using ExpenseTracker.Models;
 using ExpenseTracker.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using QuestPDF.Infrastructure;
 using Scalar;
 using Scalar.AspNetCore;
-using ExpenseTracker.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 // Add services to the container.
 
@@ -39,7 +42,7 @@ builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<DocumentService>();
 builder.Services.AddScoped<CloudinaryService>();
-
+builder.Services.AddScoped<ReportService>();
 
 builder.Services.AddDbContext<AppDbContext>(
     options => options.UseSqlServer(
