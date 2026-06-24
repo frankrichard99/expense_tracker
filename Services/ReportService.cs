@@ -18,6 +18,11 @@ namespace ExpenseTracker.Services
                 .Where(e => e.UserId == userId)
                 .ToListAsync();
 
+            if (!expenses.Any())
+            {
+                // generate "No expenses found" PDF
+                return [];
+            }
             var document = Document.Create(container =>
             {
                 container.Page(page =>
@@ -50,7 +55,7 @@ namespace ExpenseTracker.Services
                             column.Item().Row(row =>
                             {
                                 row.RelativeItem(3).Text(expense.Category.Name);
-                                row.RelativeItem(2).Text($"₦{expense.Amount}");
+                                row.RelativeItem(2).Text($"₦{expense.Amount:N2}");
                                 row.RelativeItem(5).Text(expense.Description);
                             });
                         }

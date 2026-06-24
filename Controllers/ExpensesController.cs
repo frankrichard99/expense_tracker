@@ -12,14 +12,12 @@ namespace ExpenseTracker.Controllers
     [Route("api/[controller]")]
     public class ExpensesController(ExpenseService _expenseService) : ControllerBase
     {
-        
         [HttpGet]
         public async Task<ActionResult<List<ExpenseResponseDto>>> GetAllExpenses()
         {
             var expenses = await _expenseService.GetAllExpenses();
 
-             List<ExpenseResponseDto> response = expenses                            
-                .Select(e => new ExpenseResponseDto
+            List<ExpenseResponseDto> response = expenses.Select(e => new ExpenseResponseDto
             {
                 Id = e.Id,
                 Amount = e.Amount,
@@ -29,14 +27,14 @@ namespace ExpenseTracker.Controllers
                 ReceiptUrl = e.ReceiptUrl,
                 User = new UserPreviewDto
                 {
-                    FirstName = e.User.FirstName,
-                    LastName = e.User.LastName,
+                    FirstName = e.User?.FirstName ?? "Unknown",
+                    LastName = e.User?.LastName ?? "User",
                 },
                 CategoryId = e.CategoryId,
                 Category = new CategoryPreviewDto
                 {
-                    Id = e.Category.Id,
-                    Name = e.Category.Name
+                    Id = e.Category?.Id ?? 0,
+                    Name = e.Category?.Name ?? "Uncategorized"
                 }
             }).ToList();
 
@@ -63,13 +61,13 @@ namespace ExpenseTracker.Controllers
                 CategoryId = expense.CategoryId,
                 User = new UserPreviewDto
                 {
-                    FirstName = expense.User.FirstName,
-                    LastName = expense.User.LastName,
+                    FirstName = expense.User?.FirstName ?? "Unknown",
+                    LastName = expense.User?.LastName ?? "User",
                 },
                 Category = new CategoryPreviewDto
                 {
-                    Id = expense.Category.Id,
-                    Name = expense.Category.Name
+                    Id = expense.Category?.Id ?? 0,
+                    Name = expense.Category?.Name ?? "Uncategorized"
                 }
             };
 
@@ -78,11 +76,19 @@ namespace ExpenseTracker.Controllers
 
         [HttpPost]
         [Consumes("multipart/form-data")]
-        public async Task<ActionResult<ExpenseResponseDto>> CreateExpense(CreateExpenseDto expenseDto)
+        public async Task<ActionResult<ExpenseResponseDto>> CreateExpense([FromForm] CreateExpenseDto expenseDto) // 🚀 Added [FromForm]
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             int userId = int.Parse(userIdClaim!);
-            var newExpense = await _expenseService.AddExpense(expenseDto.Amount, expenseDto.Description, userId, expenseDto.CategoryName.ToLower(), expenseDto.ReceiptImage);
+
+            var newExpense = await _expenseService.AddExpense(
+                expenseDto.Amount,
+                expenseDto.Description,
+                userId,
+                expenseDto.CategoryName.ToLower(),
+                expenseDto.ReceiptImage
+            );
+
             if (newExpense == null)
             {
                 return BadRequest("Invalid User or Category");
@@ -99,13 +105,13 @@ namespace ExpenseTracker.Controllers
                 CategoryId = newExpense.CategoryId,
                 User = new UserPreviewDto
                 {
-                    FirstName = newExpense.User.FirstName,
-                    LastName = newExpense.User.LastName,
+                    FirstName = newExpense.User?.FirstName ?? "Unknown",
+                    LastName = newExpense.User?.LastName ?? "User",
                 },
                 Category = new CategoryPreviewDto
                 {
-                    Id = newExpense.Category.Id,
-                    Name = newExpense.Category.Name
+                    Id = newExpense.Category?.Id ?? 0,
+                    Name = newExpense.Category?.Name ?? "Uncategorized"
                 }
             };
 
@@ -120,42 +126,44 @@ namespace ExpenseTracker.Controllers
 
             var expenses = await _expenseService.GetExpensesByUserId(userId);
 
-            List<ExpenseResponseDto> response = expenses
-               .Select(e => new ExpenseResponseDto
-               {
-                   Id = e.Id,
-                   Amount = e.Amount,
-                   Description = e.Description,
-                   Date = e.Date,
-                   UserId = e.UserId,
-                   ReceiptUrl = e.ReceiptUrl,
-                   User = new UserPreviewDto
-                   {
-                       FirstName = e.User.FirstName,
-                       LastName = e.User.LastName,
-                   },
-                   CategoryId = e.CategoryId,
-                   Category = new CategoryPreviewDto
-                   {
-                       Id = e.Category.Id,
-                       Name = e.Category.Name
-                   }
-               }).ToList();
+            List<ExpenseResponseDto> response = expenses.Select(e => new ExpenseResponseDto
+            {
+                Id = e.Id,
+                Amount = e.Amount,
+                Description = e.Description,
+                Date = e.Date,
+                UserId = e.UserId,
+                ReceiptUrl = e.ReceiptUrl,
+                User = new UserPreviewDto
+                {
+                    FirstName = e.User?.FirstName ?? "Unknown",
+                    LastName = e.User?.LastName ?? "User",
+                },
+                CategoryId = e.CategoryId,
+                Category = new CategoryPreviewDto
+                {
+                    Id = e.Category?.Id ?? 0,
+                    Name = e.Category?.Name ?? "Uncategorized"
+                }
+            }).ToList();
 
             return Ok(response);
         }
 
         [HttpPut("{id}")]
         [Consumes("multipart/form-data")]
-        public async Task<ActionResult<ExpenseResponseDto>> UpdateExpense(int id, UpdateExpenseDto updateDto)
+        public async Task<ActionResult<ExpenseResponseDto>> UpdateExpense(int id, [FromForm] UpdateExpenseDto updateDto) // 🚀 Added [FromForm]
         {
-
-            var updatedExpense = await _expenseService.UpdateExpense(id, updateDto.Amount, updateDto.Description, updateDto.CategoryName.ToLower(), updateDto.ReceiptImage);
+            var updatedExpense = await _expenseService.UpdateExpense(
+                id,
+                updateDto.Amount,
+                updateDto.Description,
+                updateDto.CategoryName?.ToLower(),
+                updateDto.ReceiptImage
+            );
 
             if (updatedExpense == null)
-            {
                 return BadRequest("Expense not found, or invalid Category specified.");
-            }
 
             var response = new ExpenseResponseDto
             {
@@ -168,19 +176,18 @@ namespace ExpenseTracker.Controllers
                 CategoryId = updatedExpense.CategoryId,
                 User = new UserPreviewDto
                 {
-                    FirstName = updatedExpense.User.FirstName,
-                    LastName = updatedExpense.User.LastName,
+                    FirstName = updatedExpense.User?.FirstName ?? "Unknown",
+                    LastName = updatedExpense.User?.LastName ?? "User",
                 },
                 Category = new CategoryPreviewDto
                 {
-                    Id = updatedExpense.Category.Id,
-                    Name = updatedExpense.Category.Name
+                    Id = updatedExpense.Category?.Id ?? 0,
+                    Name = updatedExpense.Category?.Name ?? "Uncategorized"
                 }
             };
 
             return Ok(response);
         }
-
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteExpense(int id)
@@ -191,7 +198,7 @@ namespace ExpenseTracker.Controllers
                 return NotFound($"Expense with ID {id} not found.");
             }
 
-            return NoContent(); 
+            return NoContent();
         }
     }
 }
